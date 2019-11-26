@@ -28,6 +28,7 @@ function main() {
 	var includeBlankItem;
 	var loadLabels;
 	var initialValues;
+	var sortDirection;
 
 	if (args.name === null) {
 		status.code = 500;
@@ -67,13 +68,17 @@ function main() {
 
 	var filterValue = args[valueParameter];
 
+	if (args.sort == 'desc' || args.sort == 'asc') {
+		sortDirection = args.sort;
+	}
+
 	model.picklistItems = getPickListItems(pickListName, pickListLevel,
 			includeBlankItem, loadLabels, initialValues, valueParameter,
-			filterValue);
+			filterValue, sortDirection);
 }
 
 function getPickListItems(pickListName, pickListLevel, includeBlankItem,
-		loadLabels, initialValues, valueParameter, filterValue) {
+		loadLabels, initialValues, valueParameter, filterValue, sortDirection) {
 
 	var fixedPickListName = fixEncodedText(pickListName);
 
@@ -148,6 +153,13 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem,
 				query : pickListItemsQuery,
 				language : "fts-alfresco"
 			};
+
+			if (sortDirection) {
+				pickListItemsSearchParameters['sort'] = [{
+					column: valueProperty,
+					ascending: (sortDirection == 'asc')
+				}];
+			}
 
 			var pickListItemsResult = search
 					.query(pickListItemsSearchParameters);
