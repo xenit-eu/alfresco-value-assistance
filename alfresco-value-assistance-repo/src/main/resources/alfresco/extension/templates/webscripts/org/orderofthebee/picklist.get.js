@@ -29,6 +29,9 @@ function main() {
 	var loadLabels;
 	var initialValues;
 	var sortDirection;
+	var parentSite = "";
+	var parentSiteProp = "";
+	var parentSitePropNode = "";
 
 	if (args.name === null) {
 		status.code = 500;
@@ -72,18 +75,55 @@ function main() {
 		sortDirection = args.sort;
 	}
 
+	if (!!args.parentSite) {
+		parentSite = args.parentSite.replace('"', '')
+	}
+
+	if (!!args.parentSiteProp) {
+		parentSiteProp = args.parentSiteProp.replace('"', '')
+	}
+
+	if (!!args.parentSitePropNode) {
+		parentSitePropNode = args.parentSitePropNode.replace('"', '')
+	}
+
+	var realParentSite = findParentSite(parentSite, parentSiteProp, parentSitePropNode);
+
 	model.picklistItems = getPickListItems(pickListName, pickListLevel,
 			includeBlankItem, loadLabels, initialValues, valueParameter,
-			filterValue, sortDirection);
+			filterValue, sortDirection, realParentSite);
+}
+
+function findParentSite(parentSiteName, parentSiteProp, parentSitePropNode) {
+	if (!!parentSiteName) {
+		return parentSiteName;
+	}
+	if (!!parentSiteProp && !!parentSitePropNode) {
+		var node = search.findNode(parentSitePropNode);
+		if (!!node) {
+			var siteName = node.properties[parentSiteProp];
+			if (!!siteName) {
+				return siteName;
+			}
+		}
+	}
+	return "";
 }
 
 function getPickListItems(pickListName, pickListLevel, includeBlankItem,
-		loadLabels, initialValues, valueParameter, filterValue, sortDirection) {
+		loadLabels, initialValues, valueParameter, filterValue, sortDirection, parentSite) {
 
 	var fixedPickListName = fixEncodedText(pickListName);
 
 	var dataListQuery = 'TYPE:"{http://www.alfresco.org/model/datalist/1.0}dataList"';
 	dataListQuery = dataListQuery + ' AND =cm:title:"' + fixedPickListName + '"';
+
+	if (!!parentSite) {
+		var siteNode = siteService.getSite(fixEncodedText(parentSite));
+		if (siteNode != null) {
+			dataListQuery = dataListQuery + ' AND ANCESTOR:"' + siteNode.getNode().getNodeRef() + '"'
+		}
+	}
 
 	var dataListSearchParameters = {
 		query: dataListQuery,

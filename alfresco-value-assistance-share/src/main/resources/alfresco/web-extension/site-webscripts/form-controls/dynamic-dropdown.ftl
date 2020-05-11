@@ -103,11 +103,14 @@
 			itemId:"${(form.arguments.itemId!"")?js_string}",
 			level:"${field.control.params['level']!"1"}",
 			formId: "${(form.arguments.formId!"")?js_string}",
+			parentSite:"${(field.control.params.parentSite!"")?js_string}",
+			parentSiteProp:"${(field.control.params.parentSiteProp!"")?js_string}",
+			parentSitePropNode:"${(args['destination'])?js_string}",
 			<#if field.control.params.includeBlankItem?? && field.control.params.includeBlankItem == "false">
 				includeBlankItem: "false"
-            <#else>
-            	includeBlankItem: "true"
-      		</#if>
+			<#else>
+				includeBlankItem: "true"
+			</#if>
 		});
 	</#if>
 
