@@ -105,7 +105,7 @@
 			formId: "${(form.arguments.formId!"")?js_string}",
 			parentSite:"${(field.control.params.parentSite!"")?js_string}",
 			parentSiteProp:"${(field.control.params.parentSiteProp!"")?js_string}",
-			parentSitePropNode:"${(args['destination'])?js_string}",
+			parentSitePropNode:"${(args['destination']!(args['itemId']!""))?js_string}",
 			<#if field.control.params.includeBlankItem?? && field.control.params.includeBlankItem == "false">
 				includeBlankItem: "false"
 			<#else>
