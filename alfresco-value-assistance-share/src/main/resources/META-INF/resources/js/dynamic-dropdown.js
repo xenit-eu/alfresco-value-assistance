@@ -48,6 +48,7 @@ function objectsArrayComparator(a,b) {
 			
 			level : "",
 			includeBlankItem : "true",
+			mergeHomonymousLists: "false",
 			parentSite : "",
 			parentSiteProp : "",
 			parentSitePropNode : ""
@@ -182,7 +183,7 @@ function objectsArrayComparator(a,b) {
             
             Alfresco.util.Ajax.request(
             {
-               url: Alfresco.constants.PROXY_URI + 'org/orderofthebee/picklist?includeBlankItem='+this.options.includeBlankItem+'&name='+this.options.picklistName+'&itemId='+this.options.itemId+dependencyQuery+'&level='+this.options.level+'&parentSite='+this.options.parentSite+'&parentSiteProp='+this.options.parentSiteProp+'&parentSitePropNode='+this.options.parentSitePropNode,
+               url: Alfresco.constants.PROXY_URI + 'org/orderofthebee/picklist?includeBlankItem='+this.options.includeBlankItem+'&name='+this.options.picklistName+'&itemId='+this.options.itemId+dependencyQuery+'&level='+this.options.level+'&parentSite='+this.options.parentSite+'&parentSiteProp='+this.options.parentSiteProp+'&parentSitePropNode='+this.options.parentSitePropNode+'&mergeHomonymousLists='+this.options.mergeHomonymousLists,
                method: "GET",
                responseContentType: "application/json",
                successCallback:
