@@ -49,7 +49,7 @@ function main() {
 	}
 
 	includeBlankItem = (args.includeBlankItem === 'true');
-	loadLabels = args.loadLabels;
+	loadLabels = (args.loadLabels === 'true');
 
 	if (args.initialValues === null) {
 		initialValues = [ "" ];
@@ -88,9 +88,7 @@ function main() {
 		parentSitePropNode = args.parentSitePropNode.replace('"', '')
 	}
 
-	if (!!args.mergeHomonymousLists) {
-		mergeHomonymousLists = true;
-	}
+	mergeHomonymousLists = (args.mergeHomonymousLists === 'true')
 	var realParentSite = findParentSite(parentSite, parentSiteProp, parentSitePropNode);
 
 	model.picklistItems = getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLabels, initialValues,
@@ -161,7 +159,7 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLab
 		} else {
 			var pickListItemsResult = []
 			for (var i=0; i<dataListResult.length; i++) {
-				var res = queryDataLists(dataListResult[i], filterValue, valueProperty, sortDirection);
+				var res = queryDataLists(dataListResult[i], pickListLevel, filterValue, valueProperty, sortDirection);
 				// extend array
 				Array.prototype.push.apply(pickListItemsResult, res);
 			}
