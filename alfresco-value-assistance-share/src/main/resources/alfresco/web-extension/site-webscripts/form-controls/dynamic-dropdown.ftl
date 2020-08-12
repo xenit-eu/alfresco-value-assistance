@@ -111,6 +111,11 @@
 			<#else>
 				mergeHomonymousLists: "false",
 			</#if>
+			<#if field.control.params.noLabels?? && field.control.params.noLabels == "true">
+				noLabels: true,
+			<#else>
+				noLabels: false,
+			</#if>
 			<#if field.control.params.includeBlankItem?? && field.control.params.includeBlankItem == "false">
 				includeBlankItem: "false"
 			<#else>
