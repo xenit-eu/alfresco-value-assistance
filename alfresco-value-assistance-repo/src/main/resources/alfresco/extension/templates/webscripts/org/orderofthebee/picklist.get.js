@@ -100,11 +100,17 @@ function findParentSite(parentSiteName, parentSiteProp, parentSitePropNode) {
 	}
 	if (!!parentSiteProp && !!parentSitePropNode) {
 		var node = search.findNode(parentSitePropNode);
-		if (!!node) {
-			var siteName = node.properties[parentSiteProp];
-			if (!!siteName) {
-				return siteName;
-			}
+
+		// recurse upwards until we find a node where the property is defined
+		var found = node.getPropertyNames(true).indexOf(parentSiteProp) != -1;
+		while(!!node.parent && !found) {
+			node = node.parent;
+			found = node.getPropertyNames(true).indexOf(parentSiteProp) != -1;
+		}
+
+		if (found) {
+			// return site name
+			return node.properties[parentSiteProp];
 		}
 	}
 	return "";
