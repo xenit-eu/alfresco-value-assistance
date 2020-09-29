@@ -21,6 +21,15 @@ function fixEncodedText(text) {
 	return fixedText;
 }
 
+function logObj(obj) {
+	logger.log("{");
+	var keys = Object.keys(obj);
+	for each(key in keys) {
+		logger.log("\t'" + key + "': " + obj[key] + ",");
+	}
+	logger.log("}");
+}
+
 function main() {
 
 	var pickListName;
@@ -211,16 +220,18 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLab
 			for (var i = 0; i < pickListItemsResult.length; i++) {
 				dataListItem = pickListItemsResult[i];
 
-				var pickListItemValue = dataListItem.properties[valueProperty];
-				var pickListItemLabel = dataListItem.properties[labelProperty];
+				if (dataListItem.properties != undefined) {
+					var pickListItemValue = dataListItem.properties[valueProperty];
+					var pickListItemLabel = dataListItem.properties[labelProperty];
 
-				// avoid adding repeated items
-				if (pickListItemValue && find(result, pickListItemValue) < 0) {
-					var pickListItem = {};
-					pickListItem.value = pickListItemValue;
-					pickListItem.label = pickListItemLabel;
+					// avoid adding repeated items
+					if (pickListItemValue && find(result, pickListItemValue) < 0) {
+						var pickListItem = {};
+						pickListItem.value = pickListItemValue;
+						pickListItem.label = pickListItemLabel;
 
-					result.push(pickListItem);
+						result.push(pickListItem);
+					}
 				}
 			}
 		}
