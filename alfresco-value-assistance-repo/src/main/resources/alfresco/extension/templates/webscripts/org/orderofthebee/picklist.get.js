@@ -184,14 +184,16 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLab
 			for (var i = 0; i < pickListItemsResult.length; i++) {
 				dataListItem = pickListItemsResult[i];
 
-				var pickListItemValue = dataListItem.properties[valueProperty];
-				var pickListItemLabel = dataListItem.properties[labelProperty];
+				if (dataListItem.properties != undefined) {
+					var pickListItemValue = dataListItem.properties[valueProperty];
+					var pickListItemLabel = dataListItem.properties[labelProperty];
 
-				valuePair = {};
-				valuePair.value = pickListItemValue;
-				valuePair.label = pickListItemLabel;
+					valuePair = {};
+					valuePair.value = pickListItemValue;
+					valuePair.label = pickListItemLabel;
 
-				valueLabelPairs.push(valuePair);
+					valueLabelPairs.push(valuePair);
+				}
 			}
 
 			for (var j = 0; j < initialValues.length; j++) {
