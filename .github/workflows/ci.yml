@@ -1,0 +1,44 @@
+name: 'Continuous Integration'
+on: [ push, pull_request ]
+jobs:
+  BuildAndPublish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out
+        uses: actions/checkout@v3
+      - name: Set up JDK 8
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: temurin
+      - name: Get the release version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_OUTPUT
+      #Try and set the version in the POMs of subprojects.
+#            - name: Update package version
+#              run: mvn versions:set -DnewVersion=${{ steps.get_version.outputs.VERSION }}
+
+      - name: Build with Maven alfresco-value-assistance-share
+        run: mvn clean install -f alfresco-value-assistance-share
+      - name: Build with Maven alfresco-value-assistance-repo
+        run: mvn clean install -f alfresco-value-assistance-repo
+      - run: mkdir staging && cp alfresco-value-assistance-share/target/*.jar staging && cp alfresco-value-assistance-share/target/*.amp staging
+      - run: cp alfresco-value-assistance-repo/target/*.jar staging && cp alfresco-value-assistance-repo/target/*.amp staging
+      # publishing.
+      #      - uses: actions/upload-artifact@v3
+      #        with:
+      #          name: Package
+      #          path: staging
+
+      - name: Publish
+        uses: actions/upload-artifact@v3
+        if: ${{ github.ref == 'refs/heads/main' || startswith(github.ref, 'refs/tags/') }}
+        with:
+          path: staging
+        env:
+          SIGNING_PRIVATE_KEY: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
+          SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
+          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.SONATYPE_S01_USERNAME }}
+          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.SONATYPE_S01_PASSWORD }}
+
+#https://s01.oss.sonatype.org/content/repositories/snapshots/
