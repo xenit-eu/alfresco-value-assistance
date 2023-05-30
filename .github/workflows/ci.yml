@@ -27,7 +27,7 @@ jobs:
 #       publishing.
       - uses: actions/upload-artifact@v3
         with:
-          name: Package
+          name: alfresco-value-assistance
           path: staging
 
 #      - name: Publish
