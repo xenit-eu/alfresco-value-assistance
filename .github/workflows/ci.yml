@@ -22,14 +22,16 @@ jobs:
         run: mvn clean install -f alfresco-value-assistance-share
       - name: Build with Maven alfresco-value-assistance-repo
         run: mvn clean install -f alfresco-value-assistance-repo
-      - run: mkdir staging && cp alfresco-value-assistance-share/target/*.jar staging && cp alfresco-value-assistance-share/target/*.amp staging
-      - run: cp alfresco-value-assistance-repo/target/*.jar staging && cp alfresco-value-assistance-repo/target/*.amp staging
-#       publishing.
+#      - run: mkdir staging && cp alfresco-value-assistance-share/target/*.jar staging && cp alfresco-value-assistance-share/target/*.amp staging
+#      - run: cp alfresco-value-assistance-repo/target/*.jar staging && cp alfresco-value-assistance-repo/target/*.amp staging
       - uses: actions/upload-artifact@v3
         with:
-          name: alfresco-value-assistance
-          path: staging
-
+          name: alfresco-value-assistance-share
+          path: alfresco-value-assistance-share/target/*.amp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: alfresco-value-assistance-repo
+          path: alfresco-value-assistance-repo/target/*.amp
 #      - name: Publish
 #        uses: actions/upload-artifact@v3
 #        if: ${{ github.ref == 'refs/heads/main' || startswith(github.ref, 'refs/tags/') }}
