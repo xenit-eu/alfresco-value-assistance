@@ -30,8 +30,16 @@ jobs:
           path: alfresco-value-assistance-share/target/*.amp
       - uses: actions/upload-artifact@v3
         with:
+          name: alfresco-value-assistance-share
+          path: alfresco-value-assistance-share/target/*.jar
+      - uses: actions/upload-artifact@v3
+        with:
           name: alfresco-value-assistance-repo
           path: alfresco-value-assistance-repo/target/*.amp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: alfresco-value-assistance-repo
+          path: alfresco-value-assistance-repo/target/*.jar
 #      - name: Publish
 #        uses: actions/upload-artifact@v3
 #        if: ${{ github.ref == 'refs/heads/main' || startswith(github.ref, 'refs/tags/') }}
