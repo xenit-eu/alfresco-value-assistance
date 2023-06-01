@@ -28,7 +28,7 @@ jobs:
 
       - name: Publish packages
         run: mvn --batch-mode deploy
-        working-directory: alfresco-value-assistance-share
+        working-directory: alfresco-value-assistance-repo
         env:
           ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.SONATYPE_S01_USERNAME }}
           ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.SONATYPE_S01_PASSWORD }}
@@ -44,10 +44,10 @@ jobs:
 #        with:
 #          name: alfresco-value-assistance-share
 #          path: alfresco-value-assistance-share/target/*.jar
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: alfresco-value-assistance-repo
-#          path: alfresco-value-assistance-repo/target/*.amp
+      - uses: actions/upload-artifact@v3
+        with:
+          name: alfresco-value-assistance-repo
+          path: alfresco-value-assistance-repo/target/*.amp
 #      - uses: actions/upload-artifact@v3
 #        with:
 #          name: alfresco-value-assistance-repo
