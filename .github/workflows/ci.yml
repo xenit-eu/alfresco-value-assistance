@@ -23,14 +23,10 @@ jobs:
           gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }} # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Publish alfresco-value-assistance-repo packages
+        if: ${{ startsWith(github.ref, 'refs/heads/master') }}
         run: mvn --batch-mode deploy -Dgpg.skip=true
         working-directory: alfresco-value-assistance-repo
-      - name: Publish alfresco-value-assistance-repo packages
-        run: mvn --batch-mode deploy:*.amp -Dgpg.skip=true
-        working-directory: alfresco-value-assistance-repo
       - name: Publish alfresco-value-assistance-share packages
+        if: ${{ startsWith(github.ref, 'refs/heads/master') }}
         run: mvn --batch-mode deploy -Dgpg.skip=true
-        working-directory: alfresco-value-assistance-share
-      - name: Publish alfresco-value-assistance-share packages
-        run: mvn --batch-mode deploy:*.amp -Dgpg.skip=true
         working-directory: alfresco-value-assistance-share
