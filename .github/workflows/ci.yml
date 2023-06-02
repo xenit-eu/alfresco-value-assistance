@@ -17,20 +17,17 @@ jobs:
           server-password: OSSRH_TOKEN # env variable for token in deploy
           gpg-private-key: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }} # Value of the GPG private key to import
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
-
-      #      - name: maven-settings-xml-action
-#        uses: whelk-io/maven-settings-xml-action@v20
-#        with:
-#          repositories: '[{ "id": "central", "url": "https://repo1.maven.org/maven2","releases": {"enabled": "true"},"snapshots": {"enabled": "true"}]'
-#          plugin_repositories: '[{ "id": "central", "url": "http://repo1.maven.org/maven2/" }]'
-#          servers: '[{ "id": "ossrh", "username": ${{ secrets.SONATYPE_S01_USERNAME }}, "password": ${{ secrets.SONATYPE_S01_PASSWORD }} }]'
-#https://docs.github.com/en/actions/publishing-packages/publishing-java-packages-with-maven
-      - name: Publish packages
+      - name: Publish alfresco-value-assistance-repo packages
         run: mvn --batch-mode deploy
         working-directory: alfresco-value-assistance-repo
         env:
           OSSRH_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
           OSSRH_TOKEN: ${{ secrets.SONATYPE_S01_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
-
-# the code underneath should also work https://github.com/xenit-eu/alfviral/tree/53c875986b5f1dcae6bb67528286d267b7c130e3
+      - name: Publish alfresco-value-assistance-share packages
+        run: mvn --batch-mode deploy
+        working-directory: alfresco-value-assistance-share
+        env:
+          OSSRH_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
+          OSSRH_TOKEN: ${{ secrets.SONATYPE_S01_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
