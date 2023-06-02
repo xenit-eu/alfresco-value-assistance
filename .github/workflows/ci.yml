@@ -12,12 +12,12 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
           server-id: ossrh
-          server-username: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          server-password: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
-      - name: Build alfresco-value-assistance-share
-        run: mvn clean install -f alfresco-value-assistance-share
-      - name: Build alfresco-value-assistance-repo
-        run: mvn clean install -f alfresco-value-assistance-repo
+          server-username: ${{ secrets.SONATYPE_S01_USERNAME }}
+          server-password: ${{ secrets.SONATYPE_S01_PASSWORD }}
+#      - name: Build alfresco-value-assistance-share
+#        run: mvn clean install -f alfresco-value-assistance-share
+#      - name: Build alfresco-value-assistance-repo
+#        run: mvn clean install -f alfresco-value-assistance-repo
 
 #      - name: maven-settings-xml-action
 #        uses: whelk-io/maven-settings-xml-action@v20
@@ -25,45 +25,16 @@ jobs:
 #          repositories: '[{ "id": "central", "url": "https://repo1.maven.org/maven2","releases": {"enabled": "true"},"snapshots": {"enabled": "true"}]'
 #          plugin_repositories: '[{ "id": "central", "url": "http://repo1.maven.org/maven2/" }]'
 #          servers: '[{ "id": "ossrh", "username": ${{ secrets.SONATYPE_S01_USERNAME }}, "password": ${{ secrets.SONATYPE_S01_PASSWORD }} }]'
-
-#      - name: Publish packages
-#        run: mvn --batch-mode deploy
-#        working-directory: alfresco-value-assistance-repo
-#        env:
+#https://docs.github.com/en/actions/publishing-packages/publishing-java-packages-with-maven
+      - name: Publish packages
+        run: mvn --batch-mode deploy
+        working-directory: alfresco-value-assistance-repo
+        env:
+          MAVEN_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.SONATYPE_S01_PASSWORD }}
 #          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.SONATYPE_S01_USERNAME }}
 #          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.SONATYPE_S01_PASSWORD }}
 #          ORG_GRADLE_PROJECT_signingKey: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
 #          ORG_GRADLE_PROJECT_signingPassword: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
 
 # the code underneath should also work https://github.com/xenit-eu/alfviral/tree/53c875986b5f1dcae6bb67528286d267b7c130e3
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: alfresco-value-assistance-share
-#          path: alfresco-value-assistance-share/target/*.amp
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: alfresco-value-assistance-share
-#          path: alfresco-value-assistance-share/target/*.jar
-      - uses: actions/upload-artifact@v3
-        with:
-          name: alfresco-value-assistance-repo
-          path: alfresco-value-assistance-repo/target/*.amp
-#      - uses: actions/upload-artifact@v3
-#        with:
-#          name: alfresco-value-assistance-repo
-#          path: alfresco-value-assistance-repo/target/*.jar
-
-
-#      - name: Publish
-#        uses: actions/upload-artifact@v3
-#        if: ${{ github.ref == 'refs/heads/main' || startswith(github.ref, 'refs/tags/') }}
-#        with:
-#          name: Package
-#          path: staging
-#        env:
-#          SIGNING_PRIVATE_KEY: ${{ secrets.MAVEN_CENTRAL_GPG_KEY }}
-#          SIGNING_PASSWORD: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
-#          ORG_GRADLE_PROJECT_sonatype_username: ${{ secrets.SONATYPE_S01_USERNAME }}
-#          ORG_GRADLE_PROJECT_sonatype_password: ${{ secrets.SONATYPE_S01_PASSWORD }}
-
-#https://s01.oss.sonatype.org/content/repositories/snapshots/
