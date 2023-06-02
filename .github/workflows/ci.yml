@@ -25,6 +25,6 @@ jobs:
       - name: Publish alfresco-value-assistance-repo packages
         run: mvn --batch-mode deploy
         working-directory: alfresco-value-assistance-repo
-#      - name: Publish alfresco-value-assistance-share packages
-#        run: mvn --batch-mode deploy
-#        working-directory: alfresco-value-assistance-share
+      - name: Publish alfresco-value-assistance-share packages
+        run: mvn --batch-mode deploy
+        working-directory: alfresco-value-assistance-share
