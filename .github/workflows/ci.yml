@@ -1,5 +1,10 @@
 name: 'Continuous Integration'
 on: [ push, pull_request ]
+
+env:
+  OSSRH_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
+  OSSRH_TOKEN: ${{ secrets.SONATYPE_S01_PASSWORD }}
+  MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
 jobs:
   BuildAndPublish:
     runs-on: ubuntu-latest
@@ -20,14 +25,6 @@ jobs:
       - name: Publish alfresco-value-assistance-repo packages
         run: mvn --batch-mode deploy
         working-directory: alfresco-value-assistance-repo
-        env:
-          OSSRH_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
-          OSSRH_TOKEN: ${{ secrets.SONATYPE_S01_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
-      - name: Publish alfresco-value-assistance-share packages
-        run: mvn --batch-mode deploy
-        working-directory: alfresco-value-assistance-share
-        env:
-          OSSRH_USERNAME: ${{ secrets.SONATYPE_S01_USERNAME }}
-          OSSRH_TOKEN: ${{ secrets.SONATYPE_S01_PASSWORD }}
-          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_CENTRAL_GPG_PASSWORD }}
+#      - name: Publish alfresco-value-assistance-share packages
+#        run: mvn --batch-mode deploy
+#        working-directory: alfresco-value-assistance-share
