@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Maven Central Repository
         uses: actions/setup-java@v3
-        with: # running setup-java again overwrites the settings.xml
+        with: # running setup-java overwrites the settings.xml
           java-version: 8
           distribution: 'temurin'
           cache: 'maven'
@@ -24,9 +24,9 @@ jobs:
           gpg-passphrase: MAVEN_GPG_PASSPHRASE # env variable for GPG private key passphrase
       - name: Publish alfresco-value-assistance-repo packages
         if: ${{ startsWith(github.ref, 'refs/heads/master') }}
-        run: mvn --batch-mode deploy -Dgpg.skip=true
+        run: mvn --batch-mode deploy
         working-directory: alfresco-value-assistance-repo
       - name: Publish alfresco-value-assistance-share packages
         if: ${{ startsWith(github.ref, 'refs/heads/master') }}
-        run: mvn --batch-mode deploy -Dgpg.skip=true
+        run: mvn --batch-mode deploy
         working-directory: alfresco-value-assistance-share
