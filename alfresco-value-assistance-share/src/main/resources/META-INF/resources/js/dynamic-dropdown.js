@@ -1,5 +1,7 @@
-function objectsArrayComparator(a,b) {
-	return a.label.localeCompare(b.label);
+function objectsPropComparator(prop) {
+	return function (a,b) {
+		return a[prop].localeCompare(b[prop]);
+	}
 }
 
 (function(TSG) {
@@ -47,7 +49,12 @@ function objectsArrayComparator(a,b) {
 			dynamicPicklistNames: [],
 			
 			level : "",
-			includeBlankItem : "true"
+			includeBlankItem : "true",
+			mergeHomonymousLists: "false",
+			noLabels: false,
+			parentSite : "",
+			parentSiteProp : "",
+			parentSitePropNode : ""
 		},
         updateValues : function(dependencyValue){
             console.log("get new values, dependency:")
@@ -102,13 +109,18 @@ function objectsArrayComparator(a,b) {
             	{
             		var picklist = response.json.result.picklist;
 
-					picklist.sort(objectsArrayComparator);
+					if (this.options.noLabels) {
+						var comparator = objectsPropComparator('value');
+					} else {
+						var comparator = objectsPropComparator('label');
+					}
+					picklist.sort(comparator);
 
 					for (var i=0; i<picklist.length;i++)
 					{
 						var optionElement = document.createElement("option");
-						optionElement.innerHTML = picklist[i].label;
 
+						optionElement.innerHTML = (this.options.noLabels) ? picklist[i].value : picklist[i].label;
 						optionElement.value = picklist[i].value;
 
 						if (this.options.initialValue instanceof Array && this.options.initialValue.indexOf(picklist[i].value) !== -1)
@@ -179,7 +191,7 @@ function objectsArrayComparator(a,b) {
             
             Alfresco.util.Ajax.request(
             {
-               url: Alfresco.constants.PROXY_URI + 'org/orderofthebee/picklist?includeBlankItem='+this.options.includeBlankItem+'&name='+this.options.picklistName+'&itemId='+this.options.itemId+dependencyQuery+'&level='+this.options.level,
+               url: Alfresco.constants.PROXY_URI + 'org/orderofthebee/picklist?includeBlankItem='+this.options.includeBlankItem+'&name='+this.options.picklistName+'&itemId='+this.options.itemId+dependencyQuery+'&level='+this.options.level+'&parentSite='+this.options.parentSite+'&parentSiteProp='+this.options.parentSiteProp+'&parentSitePropNode='+this.options.parentSitePropNode+'&mergeHomonymousLists='+this.options.mergeHomonymousLists,
                method: "GET",
                responseContentType: "application/json",
                successCallback:

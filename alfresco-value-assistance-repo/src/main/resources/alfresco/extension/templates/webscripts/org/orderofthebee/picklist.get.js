@@ -9,16 +9,25 @@ function find(valuesArray, value) {
 }
 
 function fixEncodedText(text) {
-    var fixedText;
-    try{
-        // If the string is UTF-8, this will work and not throw an error.
-        fixedText = decodeURIComponent(escape(text));
-    }catch(e){
-        // If it isn't, an error will be thrown, and we can asume that we have an ISO string.
-        fixedText = text;
-    }
+	var fixedText;
+	try{
+		// If the string is UTF-8, this will work and not throw an error.
+		fixedText = decodeURIComponent(escape(text));
+	}catch(e){
+		// If it isn't, an error will be thrown, and we can asume that we have an ISO string.
+		fixedText = text;
+	}
 
-    return fixedText;
+	return fixedText;
+}
+
+function logObj(obj) {
+	logger.log("{");
+	var keys = Object.keys(obj);
+	for each(key in keys) {
+		logger.log("\t'" + key + "': " + obj[key] + ",");
+	}
+	logger.log("}");
 }
 
 function main() {
@@ -28,6 +37,11 @@ function main() {
 	var includeBlankItem;
 	var loadLabels;
 	var initialValues;
+	var sortDirection;
+	var parentSite = "";
+	var parentSiteProp = "";
+	var parentSitePropNode = "";
+	var mergeHomonymousLists = false;
 
 	if (args.name === null) {
 		status.code = 500;
@@ -44,7 +58,7 @@ function main() {
 	}
 
 	includeBlankItem = (args.includeBlankItem === 'true');
-	loadLabels = args.loadLabels;
+	loadLabels = (args.loadLabels === 'true');
 
 	if (args.initialValues === null) {
 		initialValues = [ "" ];
@@ -67,100 +81,110 @@ function main() {
 
 	var filterValue = args[valueParameter];
 
-	model.picklistItems = getPickListItems(pickListName, pickListLevel,
-			includeBlankItem, loadLabels, initialValues, valueParameter,
-			filterValue);
+	if (args.sort == 'desc' || args.sort == 'asc') {
+		sortDirection = args.sort;
+	}
+
+	if (!!args.parentSite) {
+		parentSite = args.parentSite.replace('"', '')
+	}
+
+	if (!!args.parentSiteProp) {
+		parentSiteProp = args.parentSiteProp.replace('"', '')
+	}
+
+	if (!!args.parentSitePropNode) {
+		parentSitePropNode = args.parentSitePropNode.replace('"', '')
+	}
+
+	mergeHomonymousLists = (args.mergeHomonymousLists === 'true')
+	var realParentSite = findParentSite(parentSite, parentSiteProp, parentSitePropNode);
+
+	model.picklistItems = getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLabels, initialValues,
+			filterValue, sortDirection, realParentSite, mergeHomonymousLists);
 }
 
-function getPickListItems(pickListName, pickListLevel, includeBlankItem,
-		loadLabels, initialValues, valueParameter, filterValue) {
+function findParentSite(parentSiteName, parentSiteProp, parentSitePropNode) {
+	if (!!parentSiteName) {
+		return parentSiteName;
+	}
+	if (!!parentSiteProp && !!parentSitePropNode) {
+		var node = search.findNode(parentSitePropNode);
 
-    var fixedPickListName = fixEncodedText(pickListName);
+		// recurse upwards until we find a node where the property is defined
+		var found = node.getPropertyNames(true).indexOf(parentSiteProp) != -1;
+		while(!!node.parent && !found) {
+			node = node.parent;
+			found = node.getPropertyNames(true).indexOf(parentSiteProp) != -1;
+		}
+
+		if (found) {
+			// return site name
+			return node.properties[parentSiteProp];
+		}
+	}
+	return "";
+}
+
+function getPickListItems(pickListName, pickListLevel, includeBlankItem, loadLabels, initialValues, filterValue,
+	sortDirection, parentSite, mergeHomonymousLists) {
+
+	var fixedPickListName = fixEncodedText(pickListName);
+	var result = [];
 
 	var dataListQuery = 'TYPE:"{http://www.alfresco.org/model/datalist/1.0}dataList"';
-    dataListQuery = dataListQuery + ' AND =cm:title:"' + fixedPickListName + '"';
+	dataListQuery = dataListQuery + ' AND =cm:title:"' + fixedPickListName + '"';
+
+	if (!!parentSite) {
+		var siteNode = siteService.getSite(fixEncodedText(parentSite));
+		if (siteNode != null) {
+			dataListQuery = dataListQuery + ' AND ANCESTOR:"' + siteNode.getNode().getNodeRef() + '"'
+		}
+	}
+
+	if (pickListLevel == 1) {
+		valueProperty = "va:level1Value";
+		labelProperty = "va:level1Label";
+	} else if (pickListLevel == 2) {
+		valueProperty = "va:level2Value";
+		labelProperty = "va:level2Label";
+	}
 
 	var dataListSearchParameters = {
-       query: dataListQuery,
-       language: "fts-alfresco",
-       page: {maxItems: 1000},
-       templates: []
-    };
+		query: dataListQuery,
+		language: "fts-alfresco",
+		page: {maxItems: 1000},
+		templates: []
+	};
 
 	var dataListResult = search.query(dataListSearchParameters);
 
-	var result = [];
-
-	if (dataListResult.length == 0) {
+	if (dataListResult.length < 1) {
 		model.error = "Unable to locate data list object with title "
 				+ pickListName;
 	} else {
-
-		var dataList;
-		if (dataListResult.length > 0) {
-			dataList = dataListResult[0];
-		}
-
-		var valueProperty;
-		var labelProperty;
-		var filterProperty;
-
-		var pickListItemsQuery = "PARENT:\"" + dataList.nodeRef + "\"";
-
-		switch (pickListLevel) {
-		case 1:
-			pickListItemsQuery = pickListItemsQuery
-					+ " AND ASPECT:\"va:level1Aspect\"";
-
-			valueProperty = "va:level1Value";
-			labelProperty = "va:level1Label";
-			break;
-		case 2:
-			pickListItemsQuery = pickListItemsQuery
-					+ " AND ASPECT:\"va:level2Aspect\"";
-			valueProperty = "va:level2Value";
-			labelProperty = "va:level2Label";
-			filterProperty = "va:level1Value";
-			break;
-		default:
-			break;
-		}
-
-		if (pickListLevel > 1
-				&& (filterValue === null || filterValue.length === 0)) {
-
-			// returns a empty list because the filter value is empty
-			var pickListItem = {};
-			pickListItem.value = "";
-			pickListItem.label = "";
-
-			result.push(pickListItem);
+		if (dataListResult.length == 1 || !mergeHomonymousLists) {
+			var pickListItemsResult = queryDataLists(dataListResult[0], pickListLevel, filterValue, valueProperty, sortDirection);
 		} else {
-
-            var fixedFilterValue = fixEncodedText(filterValue);
-
-			if (typeof filterProperty !== "undefined") {
-				pickListItemsQuery = pickListItemsQuery + " AND "
-						+ filterProperty + ":\"" + fixedFilterValue + "\"";
+			var pickListItemsResult = []
+			for (var i=0; i<dataListResult.length; i++) {
+				var res = queryDataLists(dataListResult[i], pickListLevel, filterValue, valueProperty, sortDirection);
+				// extend array
+				Array.prototype.push.apply(pickListItemsResult, res);
 			}
+		}
 
-			var pickListItemsSearchParameters = {
-				query : pickListItemsQuery,
-				language : "fts-alfresco"
-			};
 
-			var pickListItemsResult = search
-					.query(pickListItemsSearchParameters);
+		// see if we're just supposed to send back some labels
+		if (loadLabels) {
+			var labels = [];
 
-			// see if we're just supposed to send back some labels
-			if (loadLabels) {
-				var labels = [];
+			valueLabelPairs = [];
 
-				valueLabelPairs = [];
+			for (var i = 0; i < pickListItemsResult.length; i++) {
+				dataListItem = pickListItemsResult[i];
 
-				for (var i = 0; i < pickListItemsResult.length; i++) {
-					dataListItem = pickListItemsResult[i];
-
+				if (dataListItem.properties != undefined) {
 					var pickListItemValue = dataListItem.properties[valueProperty];
 					var pickListItemLabel = dataListItem.properties[labelProperty];
 
@@ -170,39 +194,41 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem,
 
 					valueLabelPairs.push(valuePair);
 				}
+			}
 
-				for (var j = 0; j < initialValues.length; j++) {
-					var item = find(valueLabelPairs, initialValues[j]);
+			for (var j = 0; j < initialValues.length; j++) {
+				var item = find(valueLabelPairs, initialValues[j]);
 
-					if (item < 0) {
-						labels.push(initialValues[j]);
-					} else {
-						labels.push(valueLabelPairs[item].label);
-					}
+				if (item < 0) {
+					labels.push(initialValues[j]);
+				} else {
+					labels.push(valueLabelPairs[item].label);
 				}
+			}
 
-				model.labels = labels.toString();
-			} else {
+			model.labels = labels.toString();
+		} else {
 
-				if (includeBlankItem) {
-					var pickListItem = {};
-					pickListItem.value = "";
-					pickListItem.label = "";
+			if (includeBlankItem) {
+				var pickListItem = {};
+				pickListItem.value = "";
+				pickListItem.label = "";
 
-					result.push(pickListItem);
-				}
+				result.push(pickListItem);
+			}
 
-				var dataListItem;
+			var dataListItem;
 
-				for (var i = 0; i < pickListItemsResult.length; i++) {
-					dataListItem = pickListItemsResult[i];
+			for (var i = 0; i < pickListItemsResult.length; i++) {
+				dataListItem = pickListItemsResult[i];
 
+				if (dataListItem.properties != undefined) {
 					var pickListItemValue = dataListItem.properties[valueProperty];
 					var pickListItemLabel = dataListItem.properties[labelProperty];
 
 					// avoid adding repeated items
 					if (pickListItemValue && find(result, pickListItemValue) < 0) {
-                        var pickListItem = {};
+						var pickListItem = {};
 						pickListItem.value = pickListItemValue;
 						pickListItem.label = pickListItemLabel;
 
@@ -212,7 +238,51 @@ function getPickListItems(pickListName, pickListLevel, includeBlankItem,
 			}
 		}
 
-		return result;
+	}
+	return result;
+}
+
+function queryDataLists(dataList, pickListLevel, filterValue, valueProperty, sortDirection) {
+	var filterProperty;
+
+	var pickListItemsQuery = "PARENT:\"" + dataList.nodeRef + "\"";
+
+	if (pickListLevel == 1) {
+		pickListItemsQuery = pickListItemsQuery + " AND ASPECT:\"va:level1Aspect\"";
+	} else if (pickListLevel == 2) {
+		pickListItemsQuery = pickListItemsQuery + " AND ASPECT:\"va:level2Aspect\"";
+		filterProperty = "va:level1Value";
+	}
+
+	if (pickListLevel > 1 && (filterValue === null || filterValue.length === 0)) {
+
+		// returns a empty list because the filter value is empty
+		var pickListItem = {};
+		pickListItem.value = "";
+		pickListItem.label = "";
+
+		return [pickListItem];
+	} else {
+
+		var fixedFilterValue = fixEncodedText(filterValue);
+
+		if (typeof filterProperty !== "undefined") {
+			pickListItemsQuery += " AND " + filterProperty + ":\"" + fixedFilterValue + "\"";
+		}
+
+		var pickListItemsSearchParameters = {
+			query : pickListItemsQuery,
+			language : "fts-alfresco"
+		};
+
+		if (sortDirection) {
+			pickListItemsSearchParameters['sort'] = [{
+				column: valueProperty,
+				ascending: (sortDirection == 'asc')
+			}];
+		}
+
+		return search.query(pickListItemsSearchParameters);
 	}
 }
 
