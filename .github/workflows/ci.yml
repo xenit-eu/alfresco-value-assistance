@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check out
         uses: actions/checkout@v3
-      - name: Set up Maven Central Repository
+      - name: Set up JDK and Maven settings.xml
         uses: actions/setup-java@v3
         with: # running setup-java overwrites the settings.xml
           java-version: 8
@@ -29,7 +29,6 @@ jobs:
       - name: Build alfresco-value-assistance packages
         if: ${{ !startsWith(github.ref, 'refs/heads/master') }}
         run: mvn clean install
-        working-directory: alfresco-value-assistance-repo
       #build and publish
       - name: Publish alfresco-value-assistance packages
         if: ${{ startsWith(github.ref, 'refs/heads/master') }}
