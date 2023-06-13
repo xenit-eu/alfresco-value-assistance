@@ -30,6 +30,11 @@ jobs:
         if: ${{ !startsWith(github.ref, 'refs/heads/master') }}
         run: mvn clean install
       #build and publish
-      - name: Publish alfresco-value-assistance packages
+      - name: Publish alfresco-value-assistance repo
         if: ${{ startsWith(github.ref, 'refs/heads/master') }}
         run: mvn --batch-mode deploy
+        working-directory: alfresco-value-assistance-repo
+      - name: Publish alfresco-value-assistance share
+        if: ${{ startsWith(github.ref, 'refs/heads/master') }}
+        run: mvn --batch-mode deploy
+        working-directory: alfresco-value-assistance-share
