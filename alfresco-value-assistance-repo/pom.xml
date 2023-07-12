@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>eu.xenit.alfresco</groupId>
     <artifactId>alfresco-value-assistance-repo</artifactId>
-    <version>1.10.4-xenit-SNAPSHOT</version>
+    <version>1.10.5</version>
     <name>alfresco-value-assistance-repo</name>
     <description>alfresco-value-assistance-repo Platform Module</description>
     <packaging>jar</packaging>
