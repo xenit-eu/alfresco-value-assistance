@@ -60,7 +60,7 @@
 	{
 		var componentName = "TSG.LoadLabel";
 		var returnObject = TSG.LoadLabel.superclass.constructor.call(this, componentName, htmlId, "TSG.LoadLabel"); 
-		
+		console.log("LoadLabel ", returnObject);
 		return returnObject;
 	};
 	
